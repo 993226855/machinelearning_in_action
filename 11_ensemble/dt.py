@@ -202,6 +202,14 @@ class DecisionTree:
         return ig
 
     def _traverse(self, X, node, prob=False):
+        '''
+        输入待分类（预测）的样本，根据生成的树模型一个节点一个节点的去判断
+        决策树本质就是一系列规则的集合
+        :param X:待预测样本
+        :param node:树模型
+        :param prob:是否预测概率
+        :return:返回预测类别
+        '''
         if isinstance(node, Leaf):
             if self.classifier:
                 return node.value if prob else node.value.argmax()

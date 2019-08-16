@@ -4,7 +4,7 @@ from dt import DecisionTree
 
 def bootstrap_sample(X, Y):
     N, M = X.shape
-    idxs = np.random.choice(N, N, replace=True)
+    idxs = np.random.choice(N, N, replace=True)#从[0,N)中可放回的选择N个数字
     return X[idxs], Y[idxs]
 
 

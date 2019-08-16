@@ -351,15 +351,14 @@ def rf_plot():
     plt.show()
     plt.close("all")
 
-def gb_plot():
-    fig, axes = plt.subplots(4, 4)
+def gb_plot(iterate):
+    fig, axes = plt.subplots(2, 2)
     # fig.set_size_inches(10, 10)
     for ax in axes.flatten():
         n_ex = 100
         n_trees = 50
         n_feats = np.random.randint(2, 100)
         max_depth_d = np.random.randint(1, 100)
-        max_depth_r = np.random.randint(1, 10)
 
         classifier = np.random.choice([True, False])
         if classifier:
@@ -376,7 +375,7 @@ def gb_plot():
             # initialize model
             criterion = np.random.choice(["entropy", "gini"])
             mine_g = GradientBoostedDecisionTree(
-                n_iter=100,
+                n_iter=iterate,
                 max_depth=max_depth_d,
                 classifier=classifier,
                 learning_rate=1,
@@ -395,7 +394,7 @@ def gb_plot():
             criterion = "mse"
             loss = mean_squared_error
             mine_g = GradientBoostedDecisionTree(
-                n_iter=100,
+                n_iter=iterate,
                 # n_trees=n_trees,
                 max_depth=max_depth_d,
                 classifier=classifier,
@@ -453,4 +452,4 @@ def gb_plot():
     # plt.close("all")
 # dt_plot()
 # rf_plot()
-gb_plot()
+gb_plot(iterate=100)

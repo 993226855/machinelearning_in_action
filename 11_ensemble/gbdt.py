@@ -5,6 +5,12 @@ from losses import MSELoss, CrossEntropyLoss
 
 
 def to_one_hot(labels, n_classes=None):
+    '''
+
+    :param labels:
+    :param n_classes:
+    :return:
+    '''
     if labels.ndim > 1:
         raise ValueError("labels must have dimension 1, but got {}".format(labels.ndim))
 
@@ -18,7 +24,7 @@ def to_one_hot(labels, n_classes=None):
 class GradientBoostedDecisionTree:
     """
     An instance of gradient boosted machines (GBM) using decision trees as the
-    weak learners.
+    weak learners.(弱学习器)
 
     GBMs fit an ensemble of m weak learners s.t.:
 
@@ -28,7 +34,7 @@ class GradientBoostedDecisionTree:
     parameter, and w* and g* denote the weights and learner predictions for
     subsequent fits.
 
-    We fit each w and g iteratively using a greedy strategy so that at each
+    We fit each w and g iteratively using a greedy(贪心) strategy so that at each
     iteration i,
 
         w_i, g_i = argmin_{w_i, g_i} L(Y, f_{i-1}(X) + w_i * g_i)
@@ -40,6 +46,8 @@ class GradientBoostedDecisionTree:
     predictions of our model at the previous iteration, f_{i-1}(X):
 
         f_i(X) := f_{i-1}(X) + w_i * g_i
+    在每次迭代中，我们都会安排一个新的弱学习者来预测损失相对于先前预测的负梯度f_i-1（x）。
+    然后，我们使用这个弱学习者（g_i）的预测与权重（w_i）的元素相关的积来计算在前一次迭代中调整模型预测的量
     """
 
     def __init__(
@@ -150,8 +158,6 @@ class GradientBoostedDecisionTree:
         for i in range(self.n_iter):
             for k in range(self.out_dims):
                 Y_pred[:, k] += self.weights[i, k] * self.learners[i, k].predict(X)
-
         if self.classifier:
             Y_pred = Y_pred.argmax(axis=1)
-
         return Y_pred
