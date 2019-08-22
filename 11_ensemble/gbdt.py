@@ -88,6 +88,8 @@ class GradientBoostedDecisionTree:
             The error criterion to use when calculating splits for each weak
             learner. When `classifier` is False, valid entries are {'mse'}.
             When `classifier` is True, valid entries are {'entropy', 'gini'}.
+        out_dims : int
+            predict_value's dim,e.t X-->y1,y2,y3..yn (multiple vs multiple).
         """
         self.loss = loss
         self.weights = None
@@ -114,12 +116,12 @@ class GradientBoostedDecisionTree:
             Y = Y.reshape(-1, 1) if len(Y.shape) == 1 else Y
 
         N, M = X.shape
-        self.out_dims = Y.shape[1]
+        self.out_dims = Y.shape[1]#输出Y的个数
         self.learners = np.empty((self.n_iter, self.out_dims), dtype=object)
         self.weights = np.ones((self.n_iter, self.out_dims))
         self.weights[1:, :] *= self.learning_rate
 
-        # fit the base estimator
+        # fit the base estimator（初始弱学习器）
         Y_pred = np.zeros((N, self.out_dims))
         for k in range(self.out_dims):
             t = loss.base_estimator()
@@ -128,11 +130,11 @@ class GradientBoostedDecisionTree:
             self.learners[0, k] = t
 
         # incrementally fit each learner on the negative gradient of the loss
-        # wrt the previous fit (pseudo-residuals)
-        for i in range(1, self.n_iter):
+        # wrt the previous fit (pseudo-residuals)（基于弱学习器进化新的学习器）
+        for i in range(1, self.n_iter):#迭代几次则拟合几棵树
             for k in range(self.out_dims):
                 y, y_pred = Y[:, k], Y_pred[:, k]
-                neg_grad = -1 * loss.grad(y, y_pred)
+                neg_grad = -1 * loss.grad(y, y_pred)#负梯度
 
                 # use MSE as the surrogate loss when fitting to negative gradients
                 t = DecisionTree(
@@ -141,13 +143,13 @@ class GradientBoostedDecisionTree:
 
                 # fit current learner to negative gradients
                 t.fit(X, neg_grad)
-                self.learners[i, k] = t
+                self.learners[i, k] = t#基于残差拟合的树模型
 
                 # compute step size and weight for the current learner
                 step = 1.0
-                h_pred = t.predict(X)
+                h_pred = t.predict(X) #基于残差拟合的树模型得到新残差预测
                 if self.step_size == "adaptive":
-                    step = loss.line_search(y, y_pred, h_pred)
+                    step = loss.line_search(y, y_pred, h_pred)#线性搜索不知道什么意思
 
                 # update weights and our overall prediction for Y
                 self.weights[i, k] *= step

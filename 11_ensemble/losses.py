@@ -63,3 +63,19 @@ class CrossEntropyLoss:
 
     def line_search(self, y, y_pred, h_pred):
         raise NotImplementedError
+
+
+class ClassifyLoss:
+    def __call__(self, y, y_pred):
+        eps = np.finfo(float).eps
+        return -np.sum(y * np.log(y_pred + eps))
+
+    def base_estimator(self):
+        return ClassProbEstimator()
+
+    def grad(self, y, y_pred):
+        eps = np.finfo(float).eps
+        return -y * 1 / (y_pred + eps)
+
+    def line_search(self, y, y_pred, h_pred):
+        raise NotImplementedError
